@@ -14,7 +14,7 @@
 
 ########################################################################################################################
 ##                                                  DISCLAIMER                                                        ##
-##                 The Exhaustive_search() function was orriginaly written by Dr. Yu's lab                            ##
+##                 The Exhaustive_search() function was originally written by Dr. Yu's lab                            ##
 ##                 We basically removed all the plotting options and added parallel computing                         ##   
 ## The original one can be founded at: https://github.com/jmyu/CERIS-JGRA-Workshop/blob/main/Sub_functions_Workshop.r ##
 ########################################################################################################################
