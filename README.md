@@ -14,6 +14,6 @@ cluster: Script for the non-linear PCA and k-means clustering. This script imple
 
 soil_data: Script for downloading soil data from SoilGrids.
 
-How to download weather data? We do have R script for it, but we do recommend users to drink from the mine at https://github.com/allogamous/EnvRtype.
+How to download weather data? We do have R script for it, but we do recommend users to drink from the well at https://github.com/allogamous/EnvRtype.
 
 All used data sets (pheno + soil + weather) are available in the SoyURT package, which can be obtained on CRAN. 
