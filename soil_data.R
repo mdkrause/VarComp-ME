@@ -18,7 +18,7 @@
 ##  We basically inplemented a grid search approach to make sure we would obtain information for all locations, added ##
 ##  some tricks, and implemented parallel computing                                                                   ##  
 ##                                                                                                                    ##
-##  The original one can be founded at:                                                                               ##   
+##  The original script one can be founded at:                                                                        ##   
 ##  https://github.com/zecojls/downloadSoilGridsV2/blob/master/script_soilGrids_download.R                            ## 
 ########################################################################################################################
 
@@ -35,7 +35,6 @@ options(pillar.sigfig=3)
 library(curl)
 library(XML)
 library(tidyverse)
-library(SoyURT)
 library(foreach)
 library(doParallel)
 library(EnvRtype) # Thanks, Germano! =)
@@ -50,6 +49,7 @@ list.files(dir.proj)
 dir.export <- paste0("/home/username/Downloads/raster") # saving files
 
 # phenotypic data to obtain latitude, longitude, and locations names
+library(SoyURT)
 data(pheno)
 str(pheno)
 pheno$year <- as.factor(as.character(pheno$year))
