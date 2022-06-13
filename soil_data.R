@@ -18,7 +18,7 @@
 ##  We basically inplemented a grid search approach to make sure we would obtain information for all locations, added ##
 ##  some tricks, and implemented parallel computing                                                                   ##  
 ##                                                                                                                    ##
-##  The original script one can be founded at:                                                                        ##   
+##  The original script one can be found at:                                                                          ##   
 ##  https://github.com/zecojls/downloadSoilGridsV2/blob/master/script_soilGrids_download.R                            ## 
 ########################################################################################################################
 
