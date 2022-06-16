@@ -35,11 +35,11 @@ library(dplyr)
 library(raster)
 
 ## Directories
-dir.proj <- getwd() 
+dir.proj <- getwd() # must create a folder cal
 dir.create("raster")
 # each location or environment will have its own csv file in the following folder:
 dir.create("raw_data_all")
-dir.export <- paste0("./raster/") # saving temporary files .tif, that will be automatically removed
+dir.export <- paste0("./raster/") # saving temporary files, that will be automatically removed
 
 # phenotypic data to obtain latitude, longitude, and locations names
 library(SoyURT)
@@ -48,14 +48,14 @@ data(pheno)
 # latitude/longitude
 geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude)
 geo <- distinct(geo)
-colnames(geo)<- c('Location', 'lat', 'long')
+colnames(geo)<- c('Location', 'lat', 'long') # just being lazy because this code is old, sorry about that!
 
 cps <- detectCores() - 1
 cl <- parallel::makeCluster(cps)
 registerDoParallel(cl)
 
-for(ENV in 1:nrow(geo)){
-  
+foreach(ENV=1:nrow(geo), .errorhandling='pass', .packages = c('curl','XML','tidyverse'))%dopar% {
+
   min.long <- min(geo$long[ENV])
   min.lat <- min(geo$lat[ENV])
   max.long <- max(geo$long[ENV])
@@ -112,7 +112,7 @@ for(ENV in 1:nrow(geo)){
   attributes <- c("wrb.map", "phh2o.map", "soc.map", "nitrogen.map",
                   "cec.map", "silt.map", "clay.map", "sand.map", "bdod.map")
   
-  #layers <- c("0-5cm_mean", "5-15cm_mean", "15-30cm_mean", "30-60cm_mean")
+  layers <- c("0-5cm_mean", "5-15cm_mean", "15-30cm_mean", "30-60cm_mean")
   layers <- c("5-15cm_mean")
   
   for(a in 1:length(attributes)) {
@@ -125,9 +125,7 @@ for(ENV in 1:nrow(geo)){
       
       layer <- "MostProbable"
       
-      foreach(t=1:nrow(bbox.coordinates), .errorhandling='pass', .packages = c('curl','XML','tidyverse'))%dopar% {
-        
-        #for(t in 1:nrow(bbox.coordinates)) {
+        for(t in 1:nrow(bbox.coordinates)) {
         
         min.long = bbox.coordinates[t,"min.long"]
         max.long = bbox.coordinates[t,"max.long"]
@@ -167,8 +165,7 @@ for(ENV in 1:nrow(geo)){
         
         layer <- layers[l]
         
-        foreach(t=1:nrow(bbox.coordinates), .errorhandling='pass', .packages = c('curl','XML','tidyverse'))%dopar% {
-          #for(t in 1:nrow(bbox.coordinates)) {
+          for(t in 1:nrow(bbox.coordinates)) {
           
           min.long = bbox.coordinates[t, "min.long"]
           max.long = bbox.coordinates[t, "max.long"]
@@ -235,7 +232,6 @@ for(ENV in 1:nrow(geo)){
                                                          name.out = 'Soil_Grid', env.data = env.data)))
     }
     add = add + 0.00001
-    #print(soil_data)
   }
 }
   
@@ -257,7 +253,5 @@ for(ENV in 1:nrow(geo)){
   unlink(x = paste0(dir.export,"/",files))
   
   write.csv(soil_data, file = paste0("./raw_data_all/env",ENV,".csv"))
-  
-  print(paste(ENV, "out of", nrow(geo)))
 }
 stopCluster(cl)
