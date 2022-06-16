@@ -29,10 +29,7 @@ options(pillar.sigfig=3)
 # loading packages
 library(foreach)
 library(doParallel)
-#library(EnvRtype)
-#library(stringr)
-#library(dplyr)
-#library(raster)
+library(dplyr)
 
 ## Directories
 dir.proj <- getwd() # must create a folder cal
