@@ -38,12 +38,16 @@ dir.create("raster")
 dir.create("raw_data_all")
 dir.export <- paste0("./raster/") # saving temporary files, that will be automatically removed
 
+######################################################################
+# If you are interested in downloading soil data for another locations, 
+# just replace the step below for your own location name, latitude, and
+# longitude, and voilà! :)
+######################################################################
+
 # phenotypic data to obtain latitude, longitude, and locations names
 library(SoyURT)
 data(pheno)
-
-# latitude/longitude
-geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude)
+geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude) # latitude/longitude
 geo <- distinct(geo)
 colnames(geo)<- c('Location', 'lat', 'long') # yes, I was lazy here
 
