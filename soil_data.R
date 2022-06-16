@@ -18,7 +18,7 @@
 ##  We basically inplemented a grid search approach to make sure we would obtain information for all locations, added ##
 ##  some tricks, and implemented parallel computing                                                                   ##  
 ##                                                                                                                    ##
-##  The original script one can be found at:                                                                          ##   
+##  The original one can be founded at:                                                                               ##   
 ##  https://github.com/zecojls/downloadSoilGridsV2/blob/master/script_soilGrids_download.R                            ## 
 ########################################################################################################################
 
@@ -35,21 +35,17 @@ options(pillar.sigfig=3)
 library(curl)
 library(XML)
 library(tidyverse)
+library(SoyURT)
 library(foreach)
 library(doParallel)
-library(EnvRtype) # Thanks, Germano! =)
+library(EnvRtype) 
 library(stringr)
-require(raster)
+library(raster)
 
 ## Directories
-dir.root <- dirname(getwd()); dir.root
-dir.proj <- getwd(); dir.proj
-list.files(dir.root)
-list.files(dir.proj)
 dir.export <- paste0("/home/username/Downloads/raster") # saving files
 
 # phenotypic data to obtain latitude, longitude, and locations names
-library(SoyURT)
 data(pheno)
 str(pheno)
 pheno$year <- as.factor(as.character(pheno$year))
@@ -64,10 +60,10 @@ registerDoParallel(cl)
 
 for(ENV in 1:nrow(geo)){
 
-min.long <- min(geo$long[ENV])
-min.lat <- min(geo$lat[ENV])
-max.long <- max(geo$long[ENV])
-max.lat <- max(geo$lat[ENV])
+min.long <- min(geo$longitude[ENV])
+min.lat <- min(geo$latitude[ENV])
+max.long <- max(geo$longitude[ENV])
+max.lat <- max(geo$latitude[ENV])
 
 seq.long <- seq(min.long, min.lat, by = 10)
 seq.lat <- seq(min.lat-0.01, max.lat+0.01, by = 0.01) 
