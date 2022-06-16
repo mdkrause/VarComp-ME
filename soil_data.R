@@ -234,7 +234,7 @@ while(any(soil_data$Soil_Grid == 0)){
         soil_data = c()
         for(i in 1:length(soil_grid)){
           soil_data = rbind(soil_data,data.frame(Feature = soil_name[i],extract_GIS(covraster = raster(paste0(dir,'/',soil_grid[i])),name.out = 'Soil_Grid',env.data = env.data)))}
-        soil_data <- soil_data[-which(is.na(soil_data$Soil_Grid)),]
+        #soil_data <- soil_data[-which(is.na(soil_data$Soil_Grid)),]
         loc <- unique(soil_data[which(soil_data$Soil_Grid == 0),2])
         cat(loc,sep = "\t")
 }
