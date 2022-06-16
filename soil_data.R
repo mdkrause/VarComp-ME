@@ -29,10 +29,10 @@ options(pillar.sigfig=3)
 # loading packages
 library(foreach)
 library(doParallel)
-library(EnvRtype)
-library(stringr)
-library(dplyr)
-library(raster)
+#library(EnvRtype)
+#library(stringr)
+#library(dplyr)
+#library(raster)
 
 ## Directories
 dir.proj <- getwd() # must create a folder cal
@@ -48,13 +48,14 @@ data(pheno)
 # latitude/longitude
 geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude)
 geo <- distinct(geo)
-colnames(geo)<- c('Location', 'lat', 'long') # just being lazy because this code is old, sorry about that!
+colnames(geo)<- c('Location', 'lat', 'long')
 
 cps <- detectCores() - 1
 cl <- parallel::makeCluster(cps)
 registerDoParallel(cl)
 
-foreach(ENV=1:nrow(geo), .errorhandling='pass', .packages = c('curl','XML','tidyverse'))%dopar% {
+foreach(ENV=1:nrow(geo), .errorhandling='pass', 
+        .packages = c('curl','XML','dplyr', 'EnvRtype', 'raster', 'stringr'))%dopar% {
 
   min.long <- min(geo$long[ENV])
   min.lat <- min(geo$lat[ENV])
@@ -112,7 +113,7 @@ foreach(ENV=1:nrow(geo), .errorhandling='pass', .packages = c('curl','XML','tidy
   attributes <- c("wrb.map", "phh2o.map", "soc.map", "nitrogen.map",
                   "cec.map", "silt.map", "clay.map", "sand.map", "bdod.map")
   
-  layers <- c("0-5cm_mean", "5-15cm_mean", "15-30cm_mean", "30-60cm_mean")
+  #layers <- c("0-5cm_mean", "5-15cm_mean", "15-30cm_mean", "30-60cm_mean")
   layers <- c("5-15cm_mean")
   
   for(a in 1:length(attributes)) {
@@ -143,7 +144,7 @@ foreach(ENV=1:nrow(geo), .errorhandling='pass', .packages = c('curl','XML','tidy
         
         destination.file <- paste0(dir.export, "/SoilGrids_",
                                    paste(attribute.prefix, layer,
-                                         left.coord, top.coord, sep = "_"),
+                                         left.coord, top.coord, "env", ENV,sep = "_"),
                                    ".tif")
         
         if(file.exists(destination.file)) {
@@ -183,7 +184,7 @@ foreach(ENV=1:nrow(geo), .errorhandling='pass', .packages = c('curl','XML','tidy
           
           destination.file <- paste0(dir.export, "/SoilGrids_",
                                      paste(attribute.prefix, layer,
-                                           left.coord, top.coord, sep = "_"),
+                                           left.coord, top.coord, "env", ENV,sep = "_"),
                                      ".tif")
           
           if(file.exists(destination.file)) {
@@ -204,8 +205,8 @@ foreach(ENV=1:nrow(geo), .errorhandling='pass', .packages = c('curl','XML','tidy
 
   # after downloading the .tif files, let's process them!
   dir = dir.export
-  soil_grid = list.files(path = dir,pattern = 'tif')
-  soil_name = gsub(soil_grid,pattern = '.tif',replacement = '')
+  soil_grid = list.files(path = dir,pattern = paste0("env_", ENV, ".tif"))
+  soil_name = gsub(soil_grid,pattern = paste0("_env_", ENV, ".tif"),replacement = '')
   
   env.data = data.frame(env = geo$Location[ENV],LAT = geo$lat[ENV], LON = geo$long[ENV])
   
@@ -246,11 +247,7 @@ foreach(ENV=1:nrow(geo), .errorhandling='pass', .packages = c('curl','XML','tidy
   soil_data$Feature[str_detect(soil_data$Feature, "soc_5-15cm_mean")] <- "soc_5-15cm_mean"
   soil_data$Feature[str_detect(soil_data$Feature, "wrb_MostProbabl")] <- "wrb_MostProbabl"
   
-  assign(paste0('env',ENV),soil_data)
-  
-  files <- list.files(path = dir.export)
-  
-  unlink(x = paste0(dir.export,"/",files))
+  unlink(x = paste0(dir.export,"/",soil_grid))
   
   write.csv(soil_data, file = paste0("./raw_data_all/env",ENV,".csv"))
 }
