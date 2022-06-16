@@ -45,7 +45,7 @@ data(pheno)
 # latitude/longitude
 geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude)
 geo <- distinct(geo)
-colnames(geo)<- c('Location', 'lat', 'long')
+colnames(geo)<- c('Location', 'lat', 'long') # yes, I was lazy here
 
 cps <- detectCores() - 1
 cl <- parallel::makeCluster(cps)
