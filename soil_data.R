@@ -51,7 +51,7 @@ str(pheno)
 # latitude/longitude
 geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude)
 geo <- distinct(geo)
-colnames(geo)<- c('Location', 'lat', 'long') # pardon me, I won't modify the whole (old) code! lol
+colnames(geo)<- c('Location', 'lat', 'long')
 
 cps <- detectCores() - 1
 cl <- parallel::makeCluster(cps)
@@ -64,8 +64,8 @@ min.lat <- min(geo$lat[ENV])
 max.long <- max(geo$long[ENV])
 max.lat <- max(geo$lat[ENV])
 
-seq.long <- seq(min.long, min.lat, by = 10)
-seq.lat <- seq(min.lat-0.01, max.lat+0.01, by = 0.01) 
+seq.long <- seq(min.long-0.01, max.long+0.01, by = 0.01)
+seq.lat <- seq(min.lat-0.01, max.lat+0.01, by = 0.01)
 
 combination.min <- expand.grid(seq.long[-length(seq.long)], seq.lat[-length(seq.lat)])
 combination.max <- expand.grid(seq.long[-1], seq.lat[-1])
@@ -221,7 +221,7 @@ for(i in 1:length(soil_grid)){
   soil_data = rbind(soil_data,data.frame(Feature = soil_name[i],extract_GIS(covraster = raster(paste0(dir,'/',soil_grid[i])),name.out = 'Soil_Grid',env.data = env.data)))
   }
 
-soil_data <- soil_data[-which(is.na(soil_data$Soil_Grid)),]
+#soil_data <- soil_data[-which(is.na(soil_data$Soil_Grid)),]
 
 # Grid search near known lat/lon coordinates to make sure we can get all data!
 
