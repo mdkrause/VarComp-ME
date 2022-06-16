@@ -22,11 +22,6 @@
 ##  https://github.com/zecojls/downloadSoilGridsV2/blob/master/script_soilGrids_download.R                            ## 
 ########################################################################################################################
 
-## Must install conda first (code for Linux users)
-## https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
-## After, to install gdal, run export PATH="/home/username/anaconda3/bin:$PATH"
-## Then, conda install -c conda-forge gdal
-
 # Setup
 options(stringsAsFactors = FALSE)
 options(pillar.sigfig=3)
@@ -35,24 +30,28 @@ options(pillar.sigfig=3)
 library(curl)
 library(XML)
 library(tidyverse)
-library(SoyURT)
 library(foreach)
 library(doParallel)
-library(EnvRtype) 
+library(EnvRtype)
 library(stringr)
-library(raster)
+require(raster)
 
 ## Directories
-dir.export <- paste0("/home/username/Downloads/raster") # saving files
+dir.proj <- getwd() # must create a folder cal
+dir.create("raster")
+# each location or environment will have its own csv file in the following folder:
+dir.create("raw_data_all")
+dir.export <- paste0("./raster/") # saving temporary files, that will be automatically removed
 
 # phenotypic data to obtain latitude, longitude, and locations names
+library(SoyURT)
 data(pheno)
 str(pheno)
-pheno$year <- as.factor(as.character(pheno$year))
 
 # latitude/longitude
 geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude)
 geo <- distinct(geo)
+colnames(geo)<- c('Location', 'lat', 'long') # pardon me, I won't modify the whole (old) code! lol
 
 cps <- detectCores() - 1
 cl <- parallel::makeCluster(cps)
@@ -60,10 +59,10 @@ registerDoParallel(cl)
 
 for(ENV in 1:nrow(geo)){
 
-min.long <- min(geo$longitude[ENV])
-min.lat <- min(geo$latitude[ENV])
-max.long <- max(geo$longitude[ENV])
-max.lat <- max(geo$latitude[ENV])
+min.long <- min(geo$long[ENV])
+min.lat <- min(geo$lat[ENV])
+max.long <- max(geo$long[ENV])
+max.lat <- max(geo$lat[ENV])
 
 seq.long <- seq(min.long, min.lat, by = 10)
 seq.lat <- seq(min.lat-0.01, max.lat+0.01, by = 0.01) 
@@ -211,8 +210,7 @@ for(a in 1:length(attributes)) {
 }
 
 # after downloading the .tif files, let's process them!
-
-home.dir = getwd()
+dir = dir.export
 soil_grid = list.files(path = dir,pattern = 'tif')
 soil_name = gsub(soil_grid,pattern = '.tif',replacement = '')
 
