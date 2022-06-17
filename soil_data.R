@@ -36,12 +36,14 @@ dir.proj <- getwd() # must create a folder cal
 dir.create("raster")
 # saving temporary files, that will be automatically removed
 dir.export <- paste0("./raster/") 
-# each location or environment will have its own .csv file in the following folder:
+# each location or environment will have its own .csv file in the following
+# folder:
 dir.create("raw_data_all")
-# the reason is that sometimes the grid search gets stuck and one won't be able to retrieve
-# information for that location. So basically the user will have the individual .csv
-# files for each location saved at "raw_data_all", and if the code is able to be
-# completed, all info will be also saved in R's memory in the object "infoSoil"
+# the reason is that sometimes the grid search gets stuck and one won't be able 
+# to retrieve information for that location. So basically the user will have the
+# individual .csv file for each location saved at "raw_data_all", and if the
+# code is able to be completed, all info will be also saved in R's memory in
+# the object "infoSoil"
 
 # phenotypic data to obtain latitude, longitude, and locations names
 library(SoyURT)
@@ -50,18 +52,17 @@ geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude)
 geo <- distinct(geo)
 colnames(geo)<- c('Location', 'lat', 'long')
 
-######################################################################
-# If you are interested in downloading soil data for another locations, 
-# just replace the step below for your own location name, latitude, and
+################################################################################
+# If you are interested in downloading soil data for another locations, just 
+# replace the step below for your own location name, latitude, and
 # longitude, and voilà! :)
 #
 # For example:
-# geo <- data.frame(Location = c("Pato Branco", "Montpellier", "Accra"),
-#                   lat = c(-26.2295,  43.611900, 5.614818),
-#                   long = c(-52.6716, 3.877200, -0.205874))
+# geo <- data.frame(Location = c("Pato Branco", "Lyon", "Accra"),
+#                   lat = c(-26.2295, 45.767592, 5.614818),
+#                   long = c(-52.6716, 4.676925, -0.205874))
 #
-######################################################################
-
+################################################################################
 
 # Obtaining the soil data:
 cps <- detectCores() - 1
