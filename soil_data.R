@@ -14,7 +14,7 @@
 
 ########################################################################################################################
 ##                                                  DISCLAIMER                                                        ##
-##      This code was forked from https://github.com/zecojls/downloadSoilGridsV2 (Dr. José Lucas Safanelli) in 2020   ##
+##      This code was forked from https://github.com/zecojls/downloadSoilGridsV2¨ (Dr. José Lucas Safanelli) in 2020  ##
 ##  We basically inplemented a grid search approach to make sure we would obtain information for all locations, added ##
 ##  some tricks, and implemented parallel computing                                                                   ##  
 ##                                                                                                                    ##
@@ -34,29 +34,42 @@ library(dplyr)
 ## Directories
 dir.proj <- getwd() # must create a folder cal
 dir.create("raster")
-# each location or environment will have its own csv file in the following folder:
+# saving temporary files, that will be automatically removed
+dir.export <- paste0("./raster/") 
+# each location or environment will have its own .csv file in the following folder:
 dir.create("raw_data_all")
-dir.export <- paste0("./raster/") # saving temporary files, that will be automatically removed
+# the reason is that sometimes the grid search gets stuck and one won't be able to retrieve
+# information for that location. So basically the user will have the individual .csv
+# files for each location saved at "raw_data_all", and if the code is able to be
+# completed, all info will be also saved in R's memory in the object "infoSoil"
+
+# phenotypic data to obtain latitude, longitude, and locations names
+library(SoyURT)
+data(pheno)
+geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude)
+geo <- distinct(geo)
+colnames(geo)<- c('Location', 'lat', 'long')
 
 ######################################################################
 # If you are interested in downloading soil data for another locations, 
 # just replace the step below for your own location name, latitude, and
 # longitude, and voilà! :)
+#
+# For example:
+# geo <- data.frame(Location = c("Pato Branco", "Montpellier", "Accra"),
+#                   lat = c(-26.2295,  43.611900, 5.614818),
+#                   long = c(-52.6716, 3.877200, -0.205874))
+#
 ######################################################################
 
-# phenotypic data to obtain latitude, longitude, and locations names
-library(SoyURT)
-data(pheno)
-geo <- pheno %>% group_by(location) %>% summarise(latitude, longitude) # latitude/longitude
-geo <- distinct(geo)
-colnames(geo)<- c('Location', 'lat', 'long') # yes, I was lazy here
 
+# Obtaining the soil data:
 cps <- detectCores() - 1
 cl <- parallel::makeCluster(cps)
 registerDoParallel(cl)
 
-foreach(ENV=1:nrow(geo), .errorhandling='pass', 
-        .packages = c('curl','XML','dplyr', 'EnvRtype', 'raster', 'stringr'))%dopar% {
+infoSoil <- foreach(ENV=1:nrow(geo), .errorhandling='pass', .combine = 'rbind',
+                    .packages = c('curl','XML','dplyr', 'EnvRtype', 'raster', 'stringr'))%dopar% {
 
   min.long <- min(geo$long[ENV])
   min.lat <- min(geo$lat[ENV])
@@ -108,8 +121,6 @@ foreach(ENV=1:nrow(geo), .errorhandling='pass',
   #'https://maps.isric.org/mapserv?map=/map/bdod.map&SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=bdod_0-5cm_mean&FORMAT=image/tiff&SUBSET=long(-50.9661,-48.9661)&SUBSET=lat(-18.0721,-16.0721)&SUBSETTINGCRS=http://www.opengis.net/def/crs/EPSG/0/4326&OUTPUTCRS=http://www.opengis.net/def/crs/EPSG/0/4326'
   
   # Automatic download
-  
-  #bbox.coordinates
   
   attributes <- c("wrb.map", "phh2o.map", "soc.map", "nitrogen.map",
                   "cec.map", "silt.map", "clay.map", "sand.map", "bdod.map")
@@ -249,7 +260,10 @@ foreach(ENV=1:nrow(geo), .errorhandling='pass',
   soil_data$Feature[str_detect(soil_data$Feature, "wrb_MostProbabl")] <- "wrb_MostProbabl"
   
   unlink(x = paste0(dir.export,"/",soil_grid))
-  
   write.csv(soil_data, file = paste0("./raw_data_all/env",ENV,".csv"))
+  return(soil_data)
 }
 stopCluster(cl)
+
+# the data:
+head(infoSoil)
