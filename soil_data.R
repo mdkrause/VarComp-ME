@@ -64,6 +64,7 @@ colnames(geo)<- c('Location', 'lat', 'long')
 #
 ################################################################################
 
+
 # Obtaining the soil data:
 cps <- detectCores() - 1
 cl <- parallel::makeCluster(cps)
@@ -246,6 +247,9 @@ infoSoil <- foreach(ENV=1:nrow(geo), .errorhandling='pass', .combine = 'rbind',
                                                          name.out = 'Soil_Grid', env.data = env.data)))
     }
     add = add + 0.00001
+        if(env.data$LAT > max(bbox.coordinates$max.lat) | env.data$LON > max(bbox.coordinates$max.long)){
+      cat('Please replace the coordinates for', env.data$env)
+      break}
   }
 }
   
@@ -261,10 +265,17 @@ infoSoil <- foreach(ENV=1:nrow(geo), .errorhandling='pass', .combine = 'rbind',
   soil_data$Feature[str_detect(soil_data$Feature, "wrb_MostProbabl")] <- "wrb_MostProbabl"
   
   unlink(x = paste0(dir.export,"/",soil_grid))
+  
+  soil_data <- distinct(soil_data) 
+  
   write.csv(soil_data, file = paste0("./raw_data_all/env",ENV,".csv"))
   return(soil_data)
 }
 stopCluster(cl)
 
 # the data:
+
+## If there are missing data for a given location, please slightly modify its 
+## geographic coordinates and run the code again
+
 head(infoSoil)
