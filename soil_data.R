@@ -36,14 +36,6 @@ dir.proj <- getwd() # must create a folder cal
 dir.create("raster")
 # saving temporary files, that will be automatically removed
 dir.export <- paste0("./raster/") 
-# each location or environment will have its own .csv file in the following
-# folder:
-dir.create("raw_data_all")
-# the reason is that sometimes the grid search gets stuck and one won't be able 
-# to retrieve information for that location. So basically the user will have the
-# individual .csv file for each location saved at "raw_data_all", and if the
-# code is able to be completed, all info will be also saved in R's memory in
-# the object "infoSoil"
 
 # phenotypic data to obtain latitude, longitude, and locations names
 library(SoyURT)
@@ -267,15 +259,14 @@ infoSoil <- foreach(ENV=1:nrow(geo), .errorhandling='pass', .combine = 'rbind',
   unlink(x = paste0(dir.export,"/",soil_grid))
   
   soil_data <- distinct(soil_data) 
-  
-  write.csv(soil_data, file = paste0("./raw_data_all/env",ENV,".csv"))
+  #write.csv(soil_data, file = paste0("./raw_data_all/env",ENV,".csv"))
   return(soil_data)
 }
 stopCluster(cl)
 
 # the data:
 
-## If there are missing data for a given location, please slightly modify its 
+## If there is missing data for a given location, please slightly modify its 
 ## geographic coordinates and run the code again
 
 head(infoSoil)
