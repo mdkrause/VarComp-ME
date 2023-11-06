@@ -40,9 +40,6 @@ PCA <- pca(PCA, method="nipals", nPcs=7)
 # selecting the first 5 PC's because they explained > 90% of variation
 PCA
 PCA <- scores(PCA)[, c(1:5)] 
-
-# applying varimax rotation
-PCA <- varimax(PCA)$loadings[,c(1:5)]
 rownames(PCA) <- soil[,1]
 
 ## Silhouette
